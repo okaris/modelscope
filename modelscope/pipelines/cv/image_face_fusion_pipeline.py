@@ -49,11 +49,13 @@ class ImageFaceFusionPipeline(Pipeline):
         if type(template) is dict:  # for demo service
             user = template['user']
             template = template['template']
+            Xs_embed = template['Xs_embed']
+            xs = template['xs']
 
         template_img = LoadImage.convert_to_ndarray(template)
         user_img = LoadImage.convert_to_ndarray(user)
 
-        result = {'template': template_img, 'user': user_img}
+        result = {'template': template_img, 'user': user_img, 'Xs_embed': Xs_embed, 'xs': xs}
         return result
 
     def forward(self, input: Dict[str, Any]) -> Dict[str, Any]:
