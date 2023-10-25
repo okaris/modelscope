@@ -262,7 +262,7 @@ class ImageFaceFusion(TorchModel):
         im = cv2.resize(im, (width, height))
         return im
 
-    def inference(self, template_img, user_img, Xs_embeds, Xs):
+    def inference(self, template_img, user_img, Xs_embeds=None, Xs=None):
         ori_h, ori_w, _ = template_img.shape
 
         if Xs_embeds is None and Xs is None:

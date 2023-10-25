@@ -59,10 +59,14 @@ class ImageFaceFusionPipeline(Pipeline):
     def forward(self, input: Dict[str, Any]) -> Dict[str, Any]:
         template_img = input['template']
         user_img = input['user']
-        output = self.model.inference(template_img, user_img)
-        result = {'outputs': output}
+        Xs_embed = input['Xs_embed']
+        xs = input['xs']
+        output, Xs_embed, xs  = self.model.inference(template_img, user_img, Xs_embed, xs)
+        result = {'outputs': output, 'Xs_embed': Xs_embed, 'xs': xs}
         return result
 
     def postprocess(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
         output_img = inputs['outputs']
-        return {OutputKeys.OUTPUT_IMG: output_img}
+        Xs_embed = inputs['Xs_embed']
+        xs = inputs['xs']
+        return {OutputKeys.OUTPUT_IMG: output_img, "Xs_embed": Xs_embed, "xs": xs}
