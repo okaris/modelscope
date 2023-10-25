@@ -47,10 +47,11 @@ class ImageFaceFusionPipeline(Pipeline):
                    template: Input,
                    user: Input = None) -> Dict[str, Any]:
         if type(template) is dict:  # for demo service
-            user = template['user']
-            template = template['template']
             Xs_embed = template['Xs_embed']
             xs = template['xs']
+            user = template['user']
+            template = template['template']
+  
 
         template_img = LoadImage.convert_to_ndarray(template)
         user_img = LoadImage.convert_to_ndarray(user)
