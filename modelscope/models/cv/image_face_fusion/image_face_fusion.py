@@ -262,19 +262,20 @@ class ImageFaceFusion(TorchModel):
         im = cv2.resize(im, (width, height))
         return im
 
-    def inference(self, template_img, user_img):
+    def inference(self, template_img, user_img, Xs_embeds, Xs):
         ori_h, ori_w, _ = template_img.shape
 
+        if Xs_embeds is None and Xs is None:
+            user_img = user_img.cpu().numpy()
+            user_img_bgr = user_img[:, :, ::-1]
+            landmark_source, _, _ = self.detect_face(user_img)
+            if landmark_source is None:
+                logger.warning('No face detected in user image!')
+                return template_img
+            f5p_user = get_f5p(landmark_source, user_img_bgr)
+            Xs_embeds, Xs = self.extract_id(user_img, f5p_user)
+
         template_img = template_img.cpu().numpy()
-        user_img = user_img.cpu().numpy()
-
-        user_img_bgr = user_img[:, :, ::-1]
-        landmark_source, _, _ = self.detect_face(user_img)
-        if landmark_source is None:
-            logger.warning('No face detected in user image!')
-            return template_img
-        f5p_user = get_f5p(landmark_source, user_img_bgr)
-
         template_img_bgr = template_img[:, :, ::-1]
         landmark_template, fw, fh = self.detect_face(template_img)
         if landmark_template is None:
@@ -282,7 +283,6 @@ class ImageFaceFusion(TorchModel):
             return template_img
         f5p_template = get_f5p(landmark_template, template_img_bgr)
 
-        Xs_embeds, Xs = self.extract_id(user_img, f5p_user)
         Xt, trans_inv = warp_and_crop_face(
             template_img,
             f5p_template,
@@ -314,4 +314,4 @@ class ImageFaceFusion(TorchModel):
 
         logger.info('model inference done')
 
-        return out_img.astype(np.uint8)
+        return out_img.astype(np.uint8), Xs_embeds, Xs
